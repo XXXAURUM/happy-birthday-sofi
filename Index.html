@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>С Днём Рождения, моя самая любимая 💕</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffe6f2, #fff0f5, #f8e1e9);
+      color: #333;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Плавающие сердечки */
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .heart {
+      position: absolute;
+      font-size: 1.6rem;
+      color: #ff6bcb;
+      animation: float 14s infinite linear;
+      opacity: 0.7;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(0.5) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.9; }
+      90% { opacity: 0.9; }
+      100% { transform: translateY(-20vh) scale(1) rotate(720deg); opacity: 0; }
+    }
+    .wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    /* Животные по бокам */
+    .animals-left, .animals-right {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 160px;
+      pointer-events: none;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      opacity: 0.9;
+    }
+    .animals-left { left: 10px; }
+    .animals-right { right: 10px; }
+    .animal-side {
+      width: 110px;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
+      transform: rotate(var(--rotate, 0deg));
+      transition: transform 0.6s ease;
+    }
+    .animal-side:hover {
+      transform: scale(1.15) rotate(0deg);
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 620px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 24px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(255, 105, 180, 0.25);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 182, 193, 0.5);
+    }
+    h1 {
+      font-size: clamp(2.3rem, 7vw, 3.4rem);
+      color: #ff4d94;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .text {
+      font-size: clamp(1.05rem, 4vw, 1.3rem);
+      line-height: 1.7;
+      color: #444;
+      margin: 20px 0;
+    }
+    .signature {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.2rem, 6vw, 2.8rem);
+      color: #ff4d94;
+      margin: 30px 0 10px;
+    }
+    /* Конверт */
+    .letter-section {
+      margin: 40px 0 20px;
+    }
+    .envelope {
+      width: 200px;
+      height: 130px;
+      background: linear-gradient(to bottom, #ffd1e0, #ff9ec1);
+      margin: 0 auto 16px;
+      position: relative;
+      cursor: pointer;
+      border-radius: 8px 8px 50% 50% / 8px 8px 35% 35%;
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.35);
+      transition: transform 0.3s;
+    }
+    .envelope:hover, .envelope:active {
+      transform: scale(1.1);
+    }
+    .envelope::before {
+      content: "💌";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 5rem;
+    }
+    .envelope::after {
+      content: "Жми ❤️";
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      color: #ff4d94;
+      font-weight: 600;
+    }
+    /* Модалка письма */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+    }
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      border-radius: 24px;
+      padding: 30px 24px;
+      position: relative;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      transform: scale(0.8);
+      opacity: 0;
+      transition: all 0.4s ease-out;
+    }
+    .modal.show .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 2.5rem;
+      color: #ff4d94;
+      cursor: pointer;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .close:hover, .close:active {
+      background: rgba(255, 77, 148, 0.15);
+    }
+    .letter-text {
+      font-family: Georgia, serif;
+      font-size: clamp(1.05rem, 3.8vw, 1.22rem);
+      line-height: 1.85;
+      color: #222;
+      text-align: left;
+      white-space: pre-line;
+    }
+    .letter-signature {
+      margin-top: 30px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #ff4d94;
+      text-align: right;
+    }
+    /* Адаптив */
+    @media (max-width: 800px) {
+      .animals-left, .animals-right { display: none; }
+      .container { max-width: 100%; padding: 16px; margin: 12px; }
+    }
+    @media (min-width: 801px) and (max-width: 1100px) {
+      .animals-left, .animals-right { width: 120px; }
+      .animal-side { width: 90px; }
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Georgia&display=swap');
+  </style>
+</head>
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<!-- Животные слева -->
+<div class="animals-left">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/cute-kawaii-cat-illustration-big-eyes-pastel-colors-cartoonish-style-featuring-round-tiny-paws-playful-expression-374654283.jpg" alt="cat" style="--rotate: -12deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/adorable-puppy-fluffy-fur-big-eyes-cute-pet-digital-art-whimsical-artwork-pastel-colors-sweet-canine-happy-dog-artistic-353635353.jpg" alt="puppy" style="--rotate: 10deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/adorable-kawaii-puppy-face-pastel-colors-illustration-charming-cartoon-big-expressive-eyes-colored-fur-perfect-408207740.jpg" alt="puppy" style="--rotate: -8deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/image-features-digitally-created-incredibly-cute-cartoon-puppy-puppy-has-large-expressive-eyes-fluffy-coat-357388174.jpg" alt="puppy" style="--rotate: 6deg;">
+</div>
+
+<div class="wrapper">
+  <div class="container">
+    <h1>С Днём Рождения,<br>моя принцесса! 🎂💖</h1>
+    <div class="text">
+      Сегодня твой день, и я хочу, чтобы ты улыбалась каждую секунду 🌸  
+      Ты — моё самое большое счастье, мой тёплый лучик, мой дом.  
+      Пусть этот год будет самым добрым, самым вкусным и самым любовным в твоей жизни.  
+      А я обещаю быть рядом и делать всё, чтобы твои глазки всегда блестели ✨
+    </div>
+    <div class="letter-section">
+      <div class="envelope" id="envelope"></div>
+      <p style="color:#ff4d94; font-weight:600; margin-top:12px; font-size:1.05rem;">
+        Жми
+      </p>
+    </div>
+    <div class="signature">Твой навсегда влюблённый ❤️</div>
+  </div>
+</div>
+
+<!-- Животные справа -->
+<div class="animals-right">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/cartoon-dog-big-eyes-pastel-background-generative-ai-style-large-expressive-happy-playful-expression-357598095.jpg" alt="puppy" style="--rotate: 12deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/adorable-chibi-style-dog-cartoon-floppy-ears-big-eyes-set-against-pastel-background-illustration-359538708.jpg" alt="puppy" style="--rotate: -10deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/cute-chibi-dog-ai-generated-pastel-background-adorable-chibi-dog-illustration-ai-generated-cartoon-style-soft-pastel-358800853.jpg" alt="puppy" style="--rotate: 8deg;">
+  <img class="animal-side" src="https://thumbs.dreamstime.com/b/adorable-kawaii-puppy-face-pastel-colors-illustration-charming-cartoon-big-expressive-eyes-colored-fur-perfect-408207740.jpg" alt="puppy" style="--rotate: -6deg;">
+</div>
+
+<!-- Модалка письма -->
+<div class="modal" id="letterModal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">×</span>
+    <div class="letter-text">
+Дорогая моя Софи,
+
+Не описать словами как я тебя люблю...
+и всё же каждое утро я просыпаюсь с мыслью, что нужно придумать ещё один способ сказать тебе как я тебя люблю — потому что вчерашних слов уже мало.
+
+Я тебя люблю — это когда я смотрю на тебя и внутри одновременно тихо и громко, как будто кто-то зажёг тысячу костров и тут же накрыл их тёплым одеялом.
+
+Я тебя люблю — это когда ты мне пишешь и понимаю, что всё остальное в мире можно отложить.
+
+Я люблю тебя так сильно, что иногда мне кажется — это уже не любовь, а какая-то отдельная вселенная внутри меня: моя личная маленькая вселенная, где центр солнце — это ты, а все законы физики переписаны под твою радость.
+
+Иногда я думаю: если бы мне дали выбрать одно чувство, которое я заберу с собой навсегда, я бы даже не раздумывал.
+Это было бы вот это — моё «я люблю тебя, Софи», которое живёт во мне постоянно, даже когда я молчу.
+
+Так что прости, если я повторяюсь.
+Я ТЕБЯ ЛЮБЛЮ
+
+Твой навсегда,
+(и даже больше, чем навсегда)
+    </div>
+    <div class="letter-signature">Твой навсегда ♡</div>
+  </div>
+</div>
+
+<!-- Твоё голосовое сообщение (OGG) -->
+<audio id="voice" loop>
+  <source src="131.ogg" type="audio/ogg">
+  Твой браузер не поддерживает аудио.
+</audio>
+
+<script>
+// Сердечки
+function createHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'heart';
+  heart.innerHTML = ['💗','💖','💕','✨','🌸','🫶'][Math.floor(Math.random()*6)];
+  heart.style.left = Math.random() * 100 + 'vw';
+  heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+  heart.style.fontSize = (Math.random() * 1 + 1.1) + 'rem';
+  document.getElementById('hearts').appendChild(heart);
+  setTimeout(() => heart.remove(), 18000);
+}
+setInterval(createHeart, 500);
+
+// Письмо + голосовое
+const envelope = document.getElementById('envelope');
+const modal = document.getElementById('letterModal');
+const closeModal = document.getElementById('closeModal');
+const voice = document.getElementById('voice');
+
+function openLetter() {
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 20);
+  
+  // Запускаем голосовое сообщение
+  voice.volume = 0.6;           // громкость 60% (можно 0.3–1.0)
+  voice.play().catch(err => {
+    console.log("Автозапуск голосового заблокирован до взаимодействия");
+  });
+}
+
+function closeLetter() {
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 400);
+  // voice.pause();             // ← раскомментируй, если хочешь останавливать при закрытии письма
+}
+
+envelope.onclick = openLetter;
+closeModal.onclick = closeLetter;
+modal.onclick = (e) => { if (e.target === modal) closeLetter(); };
+</script>
+
+</body>
+</html>
